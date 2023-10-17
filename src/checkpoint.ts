@@ -47,6 +47,7 @@ export default class Checkpoint {
   private prefetchDone = false;
   private prefetchEndBlock: number | null = null;
   private cpBlocksCache: number[] | null;
+  private synced: boolean;
 
   constructor(
     config: CheckpointConfig,
@@ -97,6 +98,8 @@ export default class Checkpoint {
     this.dbConnection = dbConnection;
 
     register.setKnex(this.knex);
+
+    this.synced = false;
   }
 
   public getBaseContext() {
@@ -374,7 +377,7 @@ export default class Checkpoint {
     this.log.debug({ blockNumber: blockNum }, 'next block');
 
     try {
-      const nextBlock = await this.networkProvider.processBlock(blockNum);
+      const nextBlock = await this.networkProvider.processBlock(blockNum, this.synced);
       await this.store.purgeCheckpointBlocks(blockNum, this.sourceContracts);
 
       return this.next(nextBlock);
@@ -392,7 +395,7 @@ export default class Checkpoint {
       if (checkpointBlock && this.cpBlocksCache) {
         this.cpBlocksCache.unshift(checkpointBlock);
       }
-
+      this.synced = true;
       await Promise.delay(this.opts?.fetchInterval || DEFAULT_FETCH_INTERVAL);
       return this.next(blockNum);
     }
