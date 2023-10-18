@@ -13,6 +13,7 @@ import {
   ParsedEvent,
   ContractSourceConfig
 } from '../../types';
+import { Promise as blueBirdPromise } from 'bluebird';
 
 export class StarknetProvider extends BaseProvider {
   private readonly provider: RpcProvider;
@@ -44,10 +45,14 @@ export class StarknetProvider extends BaseProvider {
     return this.provider.getBlockNumber();
   }
 
-  async processBlock(blockNum: number) {
+  async processBlock(blockNum: number, synced: false, eventFetchDelay: 0) {
     let block: Block;
     let blockEvents: EventsMap;
     try {
+      if (synced) {
+        await blueBirdPromise.delay(eventFetchDelay);
+      }
+
       [block, blockEvents] = await Promise.all([
         this.provider.getBlockWithTxs(blockNum),
         this.getEvents(blockNum)

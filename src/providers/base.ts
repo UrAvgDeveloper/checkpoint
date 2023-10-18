@@ -64,8 +64,10 @@ export class BaseProvider {
     throw new Error('getLatestBlockNumber method was not defined');
   }
 
-  processBlock(blockNum: number): Promise<number> {
-    throw new Error(`processBlock method was not defined when fetching block ${blockNum}`);
+  processBlock(blockNum: number, synced?: boolean, eventFetchDelay?: number): Promise<number> {
+    throw new Error(
+      `processBlock method was not defined when fetching block ${blockNum} with synced ${synced} with eventDelay ${eventFetchDelay}`
+    );
   }
 
   processPool(blockNumber: number) {
