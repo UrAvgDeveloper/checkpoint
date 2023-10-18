@@ -49,6 +49,7 @@ export interface CheckpointOptions {
   abis?: Record<string, any>;
   // BaseProvider based class that defines how blocks are fetched and processed.
   NetworkProvider?: typeof BaseProvider;
+  eventFetchDelay?: number;
 }
 
 export type ContractSourceConfig = z.infer<typeof contractSourceConfigSchema>;

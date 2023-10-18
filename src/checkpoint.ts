@@ -377,7 +377,11 @@ export default class Checkpoint {
     this.log.debug({ blockNumber: blockNum }, 'next block');
 
     try {
-      const nextBlock = await this.networkProvider.processBlock(blockNum, this.synced);
+      const nextBlock = await this.networkProvider.processBlock(
+        blockNum,
+        this.synced,
+        this.opts?.eventFetchDelay
+      );
       await this.store.purgeCheckpointBlocks(blockNum, this.sourceContracts);
 
       return this.next(nextBlock);
