@@ -68,6 +68,7 @@ export class GqlEntityController {
   private readonly schema: GraphQLSchema;
   private readonly decimalTypes: NonNullable<CheckpointConfig['decimal_types']>;
   private _schemaObjects?: GraphQLObjectType[];
+  private _inputTypes: Map<string, GraphQLInputObjectType>;
 
   constructor(typeDefs: string | Source, config?: CheckpointConfig) {
     this.schema = buildSchema(typeDefs);
@@ -81,6 +82,7 @@ export class GqlEntityController {
         d: 8
       }
     };
+    this._inputTypes = new Map();
   }
 
   /**
@@ -388,8 +390,12 @@ export class GqlEntityController {
         orderByValues[field.name] = { value: field.name };
       });
 
+      if (!this._inputTypes[whereInputConfig.name]) {
+        this._inputTypes[whereInputConfig.name] = new GraphQLInputObjectType(whereInputConfig);
+      }
+
       const result = {
-        where: { type: new GraphQLInputObjectType(whereInputConfig) },
+        where: { type: this._inputTypes[whereInputConfig.name] },
         orderByValues
       };
 
